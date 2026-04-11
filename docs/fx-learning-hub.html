@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FX Chart Patterns — Trading Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+
+    :root {
+      --bg: #0a0c10;
+      --surface: #111318;
+      --card: #16191f;
+      --border: #22262e;
+      --accent: #00e5ff;
+      --green: #00ff88;
+      --red: #ff3b5c;
+      --gold: #ffd700;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(180deg, #0d1117 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 1rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+    }
+
+    .logo span {
+      color: var(--muted);
+    }
+
+    .status-bar {
+      display: flex;
+      gap: 20px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+    }
+
+    .status-item {
+      color: var(--muted);
+    }
+
+    .status-item b {
+      color: var(--green);
+    }
+
+    .status-item.bear b {
+      color: var(--red);
+    }
+
+    /* NAV TABS */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 20px 40px 0;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text);
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* MAIN CONTENT */
+    .content {
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(135deg, var(--accent), var(--green) 50%, var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .roadmap-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .roadmap-item:hover {
+      border-color: var(--accent);
+    }
+
+    .roadmap-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .roadmap-item:nth-child(1)::before {
+      background: var(--accent);
+    }
+
+    .roadmap-item:nth-child(2)::before {
+      background: var(--green);
+    }
+
+    .roadmap-item:nth-child(3)::before {
+      background: var(--gold);
+    }
+
+    .roadmap-item:nth-child(4)::before {
+      background: var(--red);
+    }
+
+    .roadmap-num {
+      font-family: var(--mono);
+      font-size: 2rem;
+      font-weight: 700;
+      opacity: 0.15;
+      position: absolute;
+      top: 10px;
+      right: 14px;
+    }
+
+    .roadmap-item h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .roadmap-item p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* SECTION TITLES */
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 32px;
+    }
+
+    /* PATTERN GRID */
+    .pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .pattern-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+
+    .pattern-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+
+    .pattern-chart {
+      background: #0d1117;
+      height: 160px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pattern-chart svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .pattern-info {
+      padding: 20px;
+    }
+
+    .pattern-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .bull {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--green);
+    }
+
+    .bear {
+      background: rgba(255, 59, 92, 0.15);
+      color: var(--red);
+    }
+
+    .neutral {
+      background: rgba(0, 229, 255, 0.15);
+      color: var(--accent);
+    }
+
+    .pattern-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .pattern-card p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .pattern-stats {
+      display: flex;
+      gap: 16px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+    }
+
+    .stat-item {
+      color: var(--muted);
+    }
+
+    .stat-item span {
+      display: block;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* TRADE SETUP */
+    .setup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 700px) {
+      .setup-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        padding: 20px 16px 0;
+      }
+
+      .content {
+        padding: 24px 16px;
+      }
+
+      header {
+        padding: 16px;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-group label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .input-group input,
+    .input-group select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: var(--accent);
+    }
+
+    .input-group select option {
+      background: #1a1d25;
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, var(--accent), #0091ea);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 32px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      width: 100%;
+    }
+
+    .btn-generate:hover {
+      opacity: 0.9;
+      transform: scale(1.01);
+    }
+
+    /* CODE OUTPUT */
+    .code-output {
+      background: #080b10;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+      position: relative;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .code-lang {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      background: rgba(0, 229, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .btn-copy {
+      background: var(--border);
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-copy:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .code-block {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      line-height: 1.8;
+      color: #c9d1d9;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .kw {
+      color: #ff79c6;
+    }
+
+    .fn {
+      color: #50fa7b;
+    }
+
+    .str {
+      color: #f1fa8c;
+    }
+
+    .num {
+      color: #bd93f9;
+    }
+
+    .cmt {
+      color: #6272a4;
+    }
+
+    .var {
+      color: #8be9fd;
+    }
+
+    /* RISK PANEL */
+    .risk-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-top: 24px;
+    }
+
+    .risk-panel h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+      color: var(--gold);
+    }
+
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .risk-card {
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .risk-card .label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .risk-card .value {
+      font-family: var(--mono);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .risk-card .value.g {
+      color: var(--green);
+    }
+
+    .risk-card .value.r {
+      color: var(--red);
+    }
+
+    .risk-card .value.b {
+      color: var(--accent);
+    }
+
+    /* GLOSSARY */
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .glossary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .glossary-card h4 {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+
+    .glossary-card p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* CANDLE LESSON */
+    .candle-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+
+    .candle-lesson {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      flex: 1;
+      min-width: 160px;
+      text-align: center;
+    }
+
+    .candle-lesson svg {
+      margin-bottom: 12px;
+    }
+
+    .candle-lesson h4 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .candle-lesson p {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ALERTS */
+    .alert {
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      border-left: 3px solid;
+    }
+
+    .alert-warn {
+      background: rgba(255, 215, 0, 0.08);
+      border-color: var(--gold);
+      color: #e0c060;
+    }
+
+    .alert-info {
+      background: rgba(0, 229, 255, 0.08);
+      border-color: var(--accent);
+      color: #80d8e8;
+    }
+
+    /* ANIMATE */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section.active>* {
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .ticker-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      overflow: hidden;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      position: relative;
+    }
+
+    .ticker-track {
+      display: flex;
+      gap: 48px;
+      width: max-content;
+      animation: tickerScroll 30s linear infinite;
+    }
+
+    .ticker-bar:hover .ticker-track {
+      animation-play-state: paused;
+    }
+
+    @keyframes tickerScroll {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    .ticker-item {
+      display: flex;
+      gap: 8px;
+      white-space: nowrap;
+      padding: 0 4px;
+    }
+
+    .ticker-item .pair {
+      color: var(--muted);
+    }
+
+    .ticker-item .price {
+      color: var(--text);
+    }
+
+    .ticker-item .change.up {
+      color: var(--green);
+    }
+
+    .ticker-item .change.dn {
+      color: var(--red);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+
+    h2.sub {
+      font-size: 1rem;
+      color: var(--accent);
+      margin: 28px 0 16px;
+      font-family: var(--mono);
+      letter-spacing: 0.1em;
+    }
+
+    .tip-box {
+      background: rgba(0, 255, 136, 0.05);
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-size: 0.8rem;
+      color: #80e8b0;
+      line-height: 1.6;
+      margin: 16px 0;
+    }
+
+    .tip-box strong {
+      color: var(--green);
+    }
+
+  /* LIVE CHART */
+  .chart-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .chart-pair-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .chart-pair-btn:hover { border-color: var(--accent); color: var(--text); }
+  .chart-pair-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+  .chart-tf-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .chart-tf-btn:hover { border-color: var(--accent); color: var(--text); }
+  .chart-tf-btn.active { border-color: var(--green); color: var(--green); }
+
+  #chart-container {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 420px;
+    position: relative;
+  }
+
+  .chart-overlay-info {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    pointer-events: none;
+    z-index: 10;
+    line-height: 1.8;
+  }
+
+  .chart-overlay-info .co-pair { font-size: 0.9rem; color: var(--text); font-weight: 700; }
+  .chart-overlay-info .co-price { font-size: 1.1rem; color: var(--accent); font-weight: 700; }
+  .chart-overlay-info .co-chg.up { color: var(--green); }
+  .chart-overlay-info .co-chg.dn { color: var(--red); }
+
+  .chart-live-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 1.4s ease-in-out infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.7); }
+  }
+  </style>
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">FX<span>/</span>ACADEMY <span style="color:#333">|</span> <span style="font-size:0.7rem">CHART
+        PATTERN MASTERY</span></div>
+    <div class="status-bar">
+      <div class="status-item">SESSION <b id="session-status">LOADING</b></div>
+      <div class="status-item" id="hdr-EURUSD">EUR/USD <b>—</b></div>
+      <div class="status-item" id="hdr-GBPUSD">GBP/USD <b>—</b></div>
+      <div class="status-item" id="hdr-XAUUSD" style="color:var(--muted)">XAU/USD <b style="color:#ffd700">—</b></div>
+    </div>
+  </header>
+
+  <div class="ticker-bar">
+    <div class="ticker-track" id="ticker-track"><!-- populated by JS --></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('start')">🚀 Start Here</div>
+    <div class="tab" onclick="showTab('candles')">🕯 Candlesticks</div>
+    <div class="tab" onclick="showTab('patterns')">📊 Chart Patterns</div>
+    <div class="tab" onclick="showTab('script')">⚡ Trade Scripts</div>
+    <div class="tab" onclick="showTab('risk')">🛡 Risk Manager</div>
+    <div class="tab" onclick="showTab('glossary')">📖 Glossary</div>
+    <div class="tab" onclick="showTab('livechart')">📈 Live Chart</div>
+  </div>
+
+  <!-- ======== START HERE ======== -->
+  <div class="content">
+    <div id="start" class="section active">
+      <div class="hero">
+        <h1>Master FX Chart Patterns</h1>
+        <p>Your complete zero-to-trader roadmap. Learn to read charts, identify patterns, and execute trades with
+          precise stop loss & targets.</p>
+      </div>
+
+      <div class="alert alert-warn">
+        ⚠️ <strong>Risk Disclaimer:</strong> Forex trading involves substantial risk of loss. Always practice on a demo
+        account before trading with real money. Never risk more than 1-2% of your account per trade.
+      </div>
+
+      <div class="roadmap">
+        <div class="roadmap-item" onclick="showTab('candles')">
+          <div class="roadmap-num">01</div>
+          <h3>📖 Learn Candlesticks</h3>
+          <p>Understand what each candle means. This is the language of price action.</p>
+        </div>
+        <div class="roadmap-item" onclick="showTab('patterns')">
+          <div class="roadmap-num">02</div>
+          <h3>📊 Chart Patterns</h3>
+          <p>Learn the 12 most powerful FX patterns with visual examples.</p>
+        </div>
+        <div class="roadmap-item" onclick="showTab('script')">
+          <div class="roadmap-num">03</div>
+          <h3>⚡ Generate Scripts</h3>
+          <p>Auto-generate buy/sell scripts with SL & TP for any pattern.</p>
+        </div>
+        <div class="roadmap-item" onclick="showTab('risk')">
+          <div class="roadmap-num">04</div>
+          <h3>🛡 Manage Risk</h3>
+          <p>Calculate lot size, risk percentage, and position sizing.</p>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <h2 class="sub">// WHAT IS FX CHART PATTERN TRADING?</h2>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:16px;">
+        Chart pattern trading means recognizing recurring shapes on a price chart that historically predict where price
+        will move next. When you combine these patterns with proper stop loss (SL) and take profit (TP) levels, you
+        create a rules-based trading system.
+      </p>
+
+      <div class="tip-box">
+        <strong>The 3 Pillars of Pattern Trading:</strong><br>
+        1. <strong>Pattern Recognition</strong> — Spot the shape forming on the chart<br>
+        2. <strong>Entry Trigger</strong> — Wait for confirmation before entering<br>
+        3. <strong>Risk Management</strong> — Set SL below/above pattern, TP at measured move
+      </div>
+
+      <hr class="divider">
+
+      <h2 class="sub">// RECOMMENDED LEARNING ORDER</h2>
+      <div style="display:grid;gap:12px;font-size:0.82rem;color:var(--muted);line-height:1.7">
+        <div>📌 <strong style="color:var(--text)">Week 1–2:</strong> Study candlestick basics (Doji, Hammer, Engulfing).
+          Open a demo account on MetaTrader 4/5.</div>
+        <div>📌 <strong style="color:var(--text)">Week 3–4:</strong> Learn 4 basic patterns (Head & Shoulders, Double
+          Top/Bottom, Triangle).</div>
+        <div>📌 <strong style="color:var(--text)">Week 5–6:</strong> Practice identifying patterns on EUR/USD H4 chart.
+          Journal every spotted pattern.</div>
+        <div>📌 <strong style="color:var(--text)">Week 7–8:</strong> Apply trade scripts with SL/TP. Track win rate on
+          demo. Target 55%+ before going live.</div>
+      </div>
+    </div>
+
+    <!-- ======== CANDLESTICKS ======== -->
+    <div id="candles" class="section">
+      <div class="section-title">Candlestick Basics</div>
+      <div class="section-sub">Before patterns, you must read individual candles. Each candle = 1 time period of price
+        movement.</div>
+
+      <div class="alert alert-info">
+        💡 A candlestick has 4 prices: <strong>Open, High, Low, Close</strong>. The body shows Open–Close. The wicks
+        show High–Low.
+      </div>
+
+      <div class="candle-row">
+        <div class="candle-lesson">
+          <svg width="50" height="100" viewBox="0 0 50 100">
+            <line x1="25" y1="5" x2="25" y2="20" stroke="#00ff88" stroke-width="2" />
+            <rect x="10" y="20" width="30" height="55" fill="#00ff88" rx="2" />
+            <line x1="25" y1="75" x2="25" y2="95" stroke="#00ff88" stroke-width="2" />
+          </svg>
+          <h4 style="color:var(--green)">Bullish Candle</h4>
+          <p>Green/White. Close is HIGHER than Open. Buyers won this period. Good sign.</p>
+        </div>
+        <div class="candle-lesson">
+          <svg width="50" height="100" viewBox="0 0 50 100">
+            <line x1="25" y1="5" x2="25" y2="20" stroke="#ff3b5c" stroke-width="2" />
+            <rect x="10" y="20" width="30" height="55" fill="#ff3b5c" rx="2" />
+            <line x1="25" y1="75" x2="25" y2="95" stroke="#ff3b5c" stroke-width="2" />
+          </svg>
+          <h4 style="color:var(--red)">Bearish Candle</h4>
+          <p>Red/Black. Close is LOWER than Open. Sellers won this period. Bad sign for bulls.</p>
+        </div>
+        <div class="candle-lesson">
+          <svg width="50" height="100" viewBox="0 0 50 100">
+            <line x1="25" y1="10" x2="25" y2="45" stroke="#ffd700" stroke-width="2" />
+            <rect x="10" y="45" width="30" height="5" fill="#ffd700" rx="2" />
+            <line x1="25" y1="50" x2="25" y2="90" stroke="#ffd700" stroke-width="2" />
+          </svg>
+          <h4 style="color:var(--gold)">Doji</h4>
+          <p>Open ≈ Close. Indecision. Neither buyers nor sellers are in control. Watch for reversal.</p>
+        </div>
+        <div class="candle-lesson">
+          <svg width="50" height="100" viewBox="0 0 50 100">
+            <line x1="25" y1="10" x2="25" y2="35" stroke="#00e5ff" stroke-width="2" />
+            <rect x="10" y="35" width="30" height="20" fill="#00e5ff" rx="2" />
+            <line x1="25" y1="55" x2="25" y2="90" stroke="#00e5ff" stroke-width="2" />
+          </svg>
+          <h4 style="color:var(--accent)">Hammer</h4>
+          <p>Long lower wick, small body at top. Strong bullish reversal signal at the bottom of a downtrend.</p>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <h2 class="sub">// KEY CANDLESTICK PATTERNS</h2>
+
+      <div class="glossary-grid">
+        <div class="glossary-card">
+          <h4>🔨 Hammer / Hanging Man</h4>
+          <p>Long lower wick (2–3x body). At bottom of downtrend = Hammer (bullish). At top of uptrend = Hanging Man
+            (bearish). Enter after next candle confirms.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>⭐ Engulfing Pattern</h4>
+          <p>Second candle completely "engulfs" the first. Bullish Engulfing at support = strong buy. Bearish Engulfing
+            at resistance = strong sell.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>✨ Morning / Evening Star</h4>
+          <p>3-candle pattern. Morning Star = bullish reversal (down, doji, up). Evening Star = bearish reversal (up,
+            doji, down).</p>
+        </div>
+        <div class="glossary-card">
+          <h4>📌 Shooting Star / Inverted Hammer</h4>
+          <p>Long upper wick. At top of uptrend = Shooting Star (bearish). At bottom = Inverted Hammer (bullish). Wait
+            for confirmation.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>🕊 Doji Types</h4>
+          <p>Standard Doji, Dragonfly (long lower wick), Gravestone (long upper wick). All signal indecision and
+            potential reversal when at key levels.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>🌅 Marubozu</h4>
+          <p>Full body candle with NO wicks. Very strong momentum. Bullish Marubozu = very strong buying pressure.
+            Bearish = very strong selling.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== PATTERNS ======== -->
+    <div id="patterns" class="section">
+      <div class="section-title">Chart Patterns</div>
+      <div class="section-sub">12 essential patterns every FX trader must know — 6 reversals, 6 continuations.</div>
+
+      <div class="pattern-grid">
+
+        <!-- Head & Shoulders -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <polyline points="20,130 60,100 80,120 120,60 160,120 180,90 220,130 270,130" fill="none" stroke="#ff3b5c"
+                stroke-width="2.5" />
+              <line x1="60" y1="120" x2="220" y2="120" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <text x="130" y="50" fill="#ffd700" font-size="9" text-anchor="middle" font-family="monospace">HEAD</text>
+              <text x="72" y="88" fill="#6272a4" font-size="8" text-anchor="middle" font-family="monospace">L</text>
+              <text x="188" y="80" fill="#6272a4" font-size="8" text-anchor="middle" font-family="monospace">R</text>
+              <text x="145" y="116" fill="#ff3b5c" font-size="8" font-family="monospace">NECKLINE</text>
+              <text x="240" y="145" fill="#ff3b5c" font-size="9" font-family="monospace">▼ SELL</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bear">BEARISH REVERSAL</div>
+            <h3>Head & Shoulders</h3>
+            <p>Three peaks — the middle (head) is highest. Enter SHORT when price breaks below the neckline. Very
+              reliable reversal signal after uptrend.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Above right shoulder</span></div>
+              <div class="stat-item">TP<span>Head height projected down</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~68%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inverse H&S -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <polyline points="20,30 60,60 80,40 120,100 160,40 180,70 220,30 270,30" fill="none" stroke="#00ff88"
+                stroke-width="2.5" />
+              <line x1="60" y1="40" x2="220" y2="40" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <text x="130" y="115" fill="#ffd700" font-size="9" text-anchor="middle"
+                font-family="monospace">HEAD</text>
+              <text x="145" y="36" fill="#00ff88" font-size="8" font-family="monospace">NECKLINE</text>
+              <text x="240" y="22" fill="#00ff88" font-size="9" font-family="monospace">▲ BUY</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bull">BULLISH REVERSAL</div>
+            <h3>Inverse Head & Shoulders</h3>
+            <p>Upside-down H&S. Three troughs — middle is deepest. Enter LONG when price breaks above the neckline.
+              Classic bottom reversal pattern.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Below right shoulder</span></div>
+              <div class="stat-item">TP<span>Head depth projected up</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~70%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Double Top -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <polyline points="20,140 60,50 110,50 160,50 200,50 250,50 280,140" fill="none" stroke="none" />
+              <path d="M20,140 Q70,140 80,55 Q90,50 100,55 Q110,90 140,90 Q160,90 180,55 Q190,50 200,55 Q210,90 280,140"
+                fill="none" stroke="#ff3b5c" stroke-width="2.5" />
+              <line x1="20" y1="90" x2="290" y2="90" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <text x="100" y="45" fill="#ffd700" font-size="9" font-family="monospace">①</text>
+              <text x="200" y="45" fill="#ffd700" font-size="9" font-family="monospace">②</text>
+              <text x="100" y="86" fill="#ff3b5c" font-size="8" font-family="monospace">NECKLINE</text>
+              <text x="240" y="155" fill="#ff3b5c" font-size="9" font-family="monospace">▼ SELL</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bear">BEARISH REVERSAL</div>
+            <h3>Double Top (M Pattern)</h3>
+            <p>Two peaks at same level — price couldn't break higher twice. Sell when price breaks below the valley
+              between the two peaks (neckline).</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Above the two tops</span></div>
+              <div class="stat-item">TP<span>= Height of the M</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~65%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Double Bottom -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <path
+                d="M20,20 Q80,20 90,105 Q100,110 110,105 Q130,70 150,70 Q170,70 190,105 Q200,110 210,105 Q240,20 290,20"
+                fill="none" stroke="#00ff88" stroke-width="2.5" />
+              <line x1="20" y1="70" x2="290" y2="70" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <text x="100" y="120" fill="#ffd700" font-size="9" font-family="monospace">①</text>
+              <text x="200" y="120" fill="#ffd700" font-size="9" font-family="monospace">②</text>
+              <text x="100" y="66" fill="#00ff88" font-size="8" font-family="monospace">NECKLINE</text>
+              <text x="240" y="15" fill="#00ff88" font-size="9" font-family="monospace">▲ BUY</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bull">BULLISH REVERSAL</div>
+            <h3>Double Bottom (W Pattern)</h3>
+            <p>Two troughs at same level. Price bounced twice from support. Buy when price breaks above the peak between
+              the two bottoms (neckline).</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Below the two lows</span></div>
+              <div class="stat-item">TP<span>= Height of the W</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~67%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ascending Triangle -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <line x1="30" y1="55" x2="260" y2="55" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <polyline points="30,140 70,100 100,55 130,110 160,55 190,90 220,55 260,55" fill="none" stroke="#00ff88"
+                stroke-width="2.5" />
+              <line x1="30" y1="140" x2="230" y2="60" stroke="#6272a4" stroke-width="1.5" stroke-dasharray="6,3" />
+              <text x="140" y="45" fill="#00ff88" font-size="9" font-family="monospace">RESISTANCE</text>
+              <text x="260" y="45" fill="#00ff88" font-size="9" font-family="monospace">▲</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bull">BULLISH CONTINUATION</div>
+            <h3>Ascending Triangle</h3>
+            <p>Flat top resistance with rising lows. Buyers getting more aggressive. Buy the breakout above the flat top
+              with increased volume.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Below last swing low</span></div>
+              <div class="stat-item">TP<span>= Triangle height</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~72%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descending Triangle -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <line x1="30" y1="105" x2="260" y2="105" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <polyline points="30,20 70,60 100,105 130,50 160,105 190,70 220,105 260,105" fill="none" stroke="#ff3b5c"
+                stroke-width="2.5" />
+              <line x1="30" y1="20" x2="230" y2="100" stroke="#6272a4" stroke-width="1.5" stroke-dasharray="6,3" />
+              <text x="140" y="120" fill="#ff3b5c" font-size="9" font-family="monospace">SUPPORT</text>
+              <text x="265" y="120" fill="#ff3b5c" font-size="9" font-family="monospace">▼</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bear">BEARISH CONTINUATION</div>
+            <h3>Descending Triangle</h3>
+            <p>Flat bottom support with falling highs. Sellers getting more aggressive. Sell the breakdown below the
+              flat support line.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Above last swing high</span></div>
+              <div class="stat-item">TP<span>= Triangle height</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~69%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bull Flag -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <polyline points="20,140 80,40" fill="none" stroke="#00ff88" stroke-width="3" />
+              <polyline points="80,40 110,55 130,48 150,60 170,52 190,64 210,56 230,68" fill="none" stroke="#00ff88"
+                stroke-width="2" />
+              <polyline points="80,55 230,75" fill="none" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <polyline points="80,35 230,55" fill="none" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <text x="40" y="90" fill="#00ff88" font-size="9" font-family="monospace">POLE</text>
+              <text x="150" y="30" fill="#ffd700" font-size="9" font-family="monospace">FLAG</text>
+              <text x="240" y="50" fill="#00ff88" font-size="9" font-family="monospace">▲ BUY</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bull">BULLISH CONTINUATION</div>
+            <h3>Bull Flag</h3>
+            <p>Strong upward "pole" followed by a tight sideways/downward "flag" consolidation. Buy the breakout above
+              the flag's upper trendline.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Below flag low</span></div>
+              <div class="stat-item">TP<span>= Pole height from breakout</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~65%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Symmetrical Triangle -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <polyline points="20,20 60,60 100,40 140,65 180,50 210,65 230,58 250,65" fill="none" stroke="#00e5ff"
+                stroke-width="2.5" />
+              <line x1="20" y1="20" x2="250" y2="65" stroke="#6272a4" stroke-width="1" stroke-dasharray="5,3" />
+              <line x1="20" y1="140" x2="250" y2="65" stroke="#6272a4" stroke-width="1" stroke-dasharray="5,3" />
+              <text x="130" y="90" fill="#6272a4" font-size="9" font-family="monospace">SQUEEZE</text>
+              <text x="255" y="60" fill="#ffd700" font-size="9" font-family="monospace">?</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge neutral">NEUTRAL — WATCH</div>
+            <h3>Symmetrical Triangle</h3>
+            <p>Converging trendlines — lower highs and higher lows. Could break either way. Trade the breakout direction
+              with volume confirmation.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Opposite side of breakout</span></div>
+              <div class="stat-item">TP<span>= Triangle width</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~54%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bear Flag -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <polyline points="20,20 80,120" fill="none" stroke="#ff3b5c" stroke-width="3" />
+              <polyline points="80,120 110,105 130,112 150,100 170,108 190,96 210,104 230,92" fill="none"
+                stroke="#ff3b5c" stroke-width="2" />
+              <polyline points="80,105 230,85" fill="none" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <polyline points="80,125 230,105" fill="none" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <text x="40" y="72" fill="#ff3b5c" font-size="9" font-family="monospace">POLE</text>
+              <text x="150" y="78" fill="#ffd700" font-size="9" font-family="monospace">FLAG</text>
+              <text x="238" y="108" fill="#ff3b5c" font-size="9" font-family="monospace">▼ SELL</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bear">BEARISH CONTINUATION</div>
+            <h3>Bear Flag</h3>
+            <p>Strong downward "pole" followed by a tight sideways/upward "flag" consolidation. Sell the breakdown below
+              the flag's lower trendline.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Above flag high</span></div>
+              <div class="stat-item">TP<span>= Pole height from breakdown</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~63%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rising Wedge -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <polyline points="20,130 60,100 90,110 130,75 160,85 200,55 230,65 260,42" fill="none" stroke="#ff3b5c"
+                stroke-width="2.5" />
+              <line x1="20" y1="130" x2="265" y2="38" stroke="#6272a4" stroke-width="1" stroke-dasharray="5,3" />
+              <line x1="20" y1="150" x2="265" y2="75" stroke="#6272a4" stroke-width="1" stroke-dasharray="5,3" />
+              <text x="100" y="148" fill="#ff3b5c" font-size="9" font-family="monospace">RISING WEDGE</text>
+              <text x="260" y="30" fill="#ff3b5c" font-size="9" font-family="monospace">▼</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bear">BEARISH REVERSAL</div>
+            <h3>Rising Wedge</h3>
+            <p>Both support and resistance lines slope up but converge. Despite rising price, momentum is weakening.
+              Sell when price breaks below the lower trendline.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Above wedge high</span></div>
+              <div class="stat-item">TP<span>= Wedge start height</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~66%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Falling Wedge -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <polyline points="20,30 60,60 90,50 130,85 160,75 200,105 230,95 260,118" fill="none" stroke="#00ff88"
+                stroke-width="2.5" />
+              <line x1="20" y1="30" x2="265" y2="122" stroke="#6272a4" stroke-width="1" stroke-dasharray="5,3" />
+              <line x1="20" y1="10" x2="265" y2="85" stroke="#6272a4" stroke-width="1" stroke-dasharray="5,3" />
+              <text x="100" y="148" fill="#00ff88" font-size="9" font-family="monospace">FALLING WEDGE</text>
+              <text x="260" y="75" fill="#00ff88" font-size="9" font-family="monospace">▲</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bull">BULLISH REVERSAL</div>
+            <h3>Falling Wedge</h3>
+            <p>Both support and resistance lines slope down but converge. Selling pressure is declining. Buy when price
+              breaks above the upper trendline with volume.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Below wedge low</span></div>
+              <div class="stat-item">TP<span>= Wedge start height</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~68%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cup & Handle -->
+        <div class="pattern-card">
+          <div class="pattern-chart">
+            <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+              <path d="M20,30 Q60,30 80,50 Q120,120 160,120 Q200,120 230,55 Q240,30 250,30" fill="none" stroke="#00e5ff"
+                stroke-width="2.5" />
+              <path d="M250,30 Q260,55 265,50 Q275,40 280,45 Q290,60 295,55" fill="none" stroke="#00e5ff"
+                stroke-width="2" />
+              <line x1="20" y1="30" x2="300" y2="30" stroke="#6272a4" stroke-width="1" stroke-dasharray="4,4" />
+              <text x="120" y="148" fill="#ffd700" font-size="9" font-family="monospace">CUP</text>
+              <text x="265" y="25" fill="#00ff88" font-size="9" font-family="monospace">▲ BUY</text>
+              <text x="260" y="70" fill="#ffd700" font-size="8" font-family="monospace">HDL</text>
+            </svg>
+          </div>
+          <div class="pattern-info">
+            <div class="pattern-badge bull">BULLISH CONTINUATION</div>
+            <h3>Cup & Handle</h3>
+            <p>U-shaped "cup" followed by a small downward "handle" consolidation. Buy the breakout above the cup's rim
+              (resistance). Common in longer timeframes.</p>
+            <div class="pattern-stats">
+              <div class="stat-item">SL<span>Below handle low</span></div>
+              <div class="stat-item">TP<span>= Cup depth from breakout</span></div>
+              <div class="stat-item">Win Rate<span style="color:var(--green)">~71%</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======== SCRIPTS ======== -->
+    <div id="script" class="section">
+      <div class="section-title">Trade Script Generator</div>
+      <div class="section-sub">Configure your trade and get a ready-to-use script for MT4/MT5, TradingView Pine Script,
+        or plain logic.</div>
+
+      <div class="setup-grid">
+        <div class="input-group">
+          <label>INSTRUMENT</label>
+          <select id="pair">
+            <optgroup label="── FX MAJORS ──">
+              <option>EUR/USD</option>
+              <option>GBP/USD</option>
+              <option>USD/JPY</option>
+              <option>AUD/USD</option>
+              <option>USD/CHF</option>
+              <option>USD/CAD</option>
+              <option>NZD/USD</option>
+              <option>GBP/JPY</option>
+            </optgroup>
+            <optgroup label="── COMMODITIES ──">
+              <option value="XAU/USD">XAU/USD — Gold</option>
+              <option value="XAG/USD">XAG/USD — Silver</option>
+              <option value="XPT/USD">XPT/USD — Platinum</option>
+              <option value="WTIUSD">WTI/USD — Crude Oil</option>
+              <option value="BCOUSD">BCO/USD — Brent Oil</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>CHART PATTERN</label>
+          <select id="pattern">
+            <optgroup label="── REVERSAL ──">
+              <option>Head & Shoulders</option>
+              <option>Inverse Head & Shoulders</option>
+              <option>Double Top</option>
+              <option>Double Bottom</option>
+              <option>Rising Wedge</option>
+              <option>Falling Wedge</option>
+            </optgroup>
+            <optgroup label="── CONTINUATION ──">
+              <option>Ascending Triangle</option>
+              <option>Descending Triangle</option>
+              <option>Bull Flag</option>
+              <option>Bear Flag</option>
+              <option>Symmetrical Triangle</option>
+              <option>Cup & Handle</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>TRADE DIRECTION</label>
+          <select id="direction">
+            <option>BUY (Long)</option>
+            <option>SELL (Short)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>SCRIPT TYPE</label>
+          <select id="scriptType">
+            <option>MetaTrader 4 (MQL4)</option>
+            <option>MetaTrader 5 (MQL5)</option>
+            <option>TradingView Pine Script</option>
+            <option>Python (OANDA API)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>ENTRY PRICE</label>
+          <input type="number" id="entry" placeholder="e.g. 1.0842 / 2931.40 (Gold)" step="0.01" />
+        </div>
+        <div class="input-group">
+          <label>STOP LOSS (pips from entry)</label>
+          <input type="number" id="slPips" placeholder="e.g. 30" step="1" />
+        </div>
+        <div class="input-group">
+          <label>TAKE PROFIT 1 (pips)</label>
+          <input type="number" id="tp1" placeholder="e.g. 50" step="1" />
+        </div>
+        <div class="input-group">
+          <label>TAKE PROFIT 2 (pips)</label>
+          <input type="number" id="tp2" placeholder="e.g. 90 (optional)" step="1" />
+        </div>
+      </div>
+
+      <button class="btn-generate" onclick="generateScript()">⚡ GENERATE TRADING SCRIPT</button>
+
+      <div class="code-output" id="codeOutput" style="display:none">
+        <div class="code-header">
+          <div class="code-lang" id="codeLang">MQL4</div>
+          <button class="btn-copy" onclick="copyCode()">COPY CODE</button>
+        </div>
+        <div class="code-block" id="codeBlock"></div>
+      </div>
+
+      <div class="alert alert-warn" style="margin-top:24px">
+        ⚠️ Always test scripts on a <strong>DEMO account</strong> first. Never run untested code on a live account.
+        Verify SL and TP values before execution.
+      </div>
+    </div>
+
+    <!-- ======== RISK ======== -->
+    <div id="risk" class="section">
+      <div class="section-title">Risk Manager</div>
+      <div class="section-sub">Calculate your position size so you never risk more than you can afford to lose.</div>
+
+      <div class="setup-grid">
+        <div class="input-group">
+          <label>ACCOUNT BALANCE (USD)</label>
+          <input type="number" id="balance" placeholder="e.g. 1000" oninput="calcRisk()" />
+        </div>
+        <div class="input-group">
+          <label>RISK PER TRADE (%)</label>
+          <input type="number" id="riskPct" placeholder="e.g. 1" value="1" step="0.1" oninput="calcRisk()" />
+        </div>
+        <div class="input-group">
+          <label>STOP LOSS (pips)</label>
+          <input type="number" id="slPipsR" placeholder="e.g. 30" oninput="calcRisk()" />
+        </div>
+        <div class="input-group">
+          <label>PIP VALUE (standard lot)</label>
+          <select id="pipVal" oninput="calcRisk()">
+            <option value="10">EUR/USD — $10/pip</option>
+            <option value="10">GBP/USD — $10/pip</option>
+            <option value="9.2">USD/JPY — ~$9.2/pip</option>
+            <option value="10">AUD/USD — $10/pip</option>
+            <option value="10">USD/CAD — $10/pip</option>
+            <option value="50">XAG/USD Silver — $50/pip (5000oz)</option>
+            <option value="10">XAU/USD Gold — $10/pip (100oz)</option>
+            <option value="10">WTI Crude Oil — $10/pip (1000bbl)</option>
+            <option value="10">BCO Brent Oil — $10/pip (1000bbl)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="risk-panel">
+        <h3>// POSITION SIZING RESULTS</h3>
+        <div class="risk-grid">
+          <div class="risk-card">
+            <div class="label">MAX RISK $</div>
+            <div class="value r" id="rDollar">—</div>
+          </div>
+          <div class="risk-card">
+            <div class="label">LOT SIZE</div>
+            <div class="value b" id="rLot">—</div>
+          </div>
+          <div class="risk-card">
+            <div class="label">MINI LOTS</div>
+            <div class="value g" id="rMini">—</div>
+          </div>
+          <div class="risk-card">
+            <div class="label">MICRO LOTS</div>
+            <div class="value g" id="rMicro">—</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <h2 class="sub">// RISK RULES EVERY TRADER MUST FOLLOW</h2>
+      <div class="glossary-grid">
+        <div class="glossary-card">
+          <h4>📏 1% Rule</h4>
+          <p>Never risk more than 1–2% of your account on a single trade. Losing 10 trades in a row (which happens!)
+            would only lose 10% of your account, not blow it up.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>⚖️ Risk:Reward Ratio</h4>
+          <p>Minimum 1:2 ratio. If you risk 30 pips, target at least 60 pips profit. At 50% win rate with 1:2 RRR, you
+            still make money overall.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>🛑 Always Set Stop Loss</h4>
+          <p>NEVER trade without a stop loss. The market can move 200+ pips against you in minutes during news events. A
+            stop loss is your insurance policy.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>📊 Journal Every Trade</h4>
+          <p>Record: entry reason, pattern, entry price, SL, TP, result. After 50 trades, analyze your data to see which
+            patterns work best for YOU.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== GLOSSARY ======== -->
+    <div id="glossary" class="section">
+      <div class="section-title">FX Trading Glossary</div>
+      <div class="section-sub">Complete beginner's reference — every term you'll encounter.</div>
+
+      <div class="glossary-grid">
+        <div class="glossary-card">
+          <h4>PIP</h4>
+          <p>Smallest price movement in FX. For EUR/USD: 1 pip = 0.0001. For USD/JPY: 1 pip = 0.01. Your profit/loss is
+            measured in pips.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>LOT SIZE</h4>
+          <p>Standard lot = 100,000 units = ~$10/pip. Mini lot = 10,000 units = ~$1/pip. Micro lot = 1,000 units =
+            ~$0.10/pip. Start with micro lots.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>STOP LOSS (SL)</h4>
+          <p>An order that automatically closes your trade at a loss if price moves against you. Placed at a level where
+            your pattern is "proven wrong."</p>
+        </div>
+        <div class="glossary-card">
+          <h4>TAKE PROFIT (TP)</h4>
+          <p>An order that automatically closes your trade in profit at your target price. Set using the pattern's
+            "measured move" technique.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>SUPPORT</h4>
+          <p>A price level where buying pressure has historically stopped price from falling further. The "floor" of
+            price. Look to BUY near support.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>RESISTANCE</h4>
+          <p>A price level where selling pressure has historically stopped price from rising further. The "ceiling" of
+            price. Look to SELL near resistance.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>BREAKOUT</h4>
+          <p>When price moves decisively through a support or resistance level. Breakouts often signal the start of a
+            new trend. Wait for candle CLOSE beyond the level.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>TREND</h4>
+          <p>Uptrend = series of higher highs and higher lows. Downtrend = lower highs and lower lows. Trade WITH the
+            trend for higher probability setups.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>SPREAD</h4>
+          <p>Difference between bid and ask price. Your trade starts slightly in negative. EUR/USD typical spread = 1–2
+            pips. Affects very short-term trades most.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>LEVERAGE</h4>
+          <p>Ability to control large position with small capital. 1:100 leverage = $100 controls $10,000. Amplifies
+            both profits AND losses. Use carefully.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>MARGIN</h4>
+          <p>Deposit required to open a leveraged position. With 1:100 leverage, to open 0.1 lot EUR/USD (10,000 units)
+            you need ~$100 margin.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>CONFLUENCE</h4>
+          <p>When multiple signals align at the same price (pattern + support + RSI oversold). The more confluence, the
+            higher probability the trade will work.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>NECKLINE</h4>
+          <p>Key level in H&S, double top/bottom patterns. The critical support/resistance line that, when broken,
+            confirms the pattern and triggers the trade entry.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>MEASURED MOVE</h4>
+          <p>Technique to set TP. Measure the height of the pattern (e.g. head to neckline) and project that distance
+            from the breakout point. That's your target.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>TIMEFRAME</h4>
+          <p>M1 (1min) to MN (monthly). H4 and Daily are best for beginners — fewer false signals, more reliable
+            patterns, less noise and stress.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>DEMO ACCOUNT</h4>
+          <p>Practice account with virtual money. Always trade on demo for at least 3 months before using real money.
+            Treat it exactly like real money.</p>
+        </div>
+        <div class="glossary-card" style="border-color:rgba(255,215,0,0.3)">
+          <h4 style="color:#ffd700">🥇 XAU/USD — GOLD</h4>
+          <p>Gold priced in US Dollars. 1 standard lot = 100 troy oz. 1 pip = $0.10/lot. Gold moves 1,000–3,000
+            pips/day. Use wider SL (200–500 pips). Highly sensitive to USD strength, inflation, and geopolitical risk.
+          </p>
+        </div>
+        <div class="glossary-card" style="border-color:rgba(192,192,192,0.3)">
+          <h4 style="color:#c0c0c0">🥈 XAG/USD — SILVER</h4>
+          <p>Silver priced in USD. 1 standard lot = 5,000 oz. 1 pip = $0.01/lot. Much more volatile than Gold — can move
+            3,000–8,000 pips/day. Smaller account? Use 0.01 micro lots. Follows Gold but amplified.</p>
+        </div>
+        <div class="glossary-card" style="border-color:rgba(244,164,96,0.3)">
+          <h4 style="color:#f4a460">🛢 WTI / BRENT OIL</h4>
+          <p>Crude oil contracts. 1 pip = $0.01. Moves driven by OPEC decisions, US inventories (Wed 10:30 EST),
+            geopolitics. WTI = US benchmark. Brent = global benchmark. Typical daily range: 200–800 pips.</p>
+        </div>
+        <div class="glossary-card" style="border-color:rgba(0,229,255,0.2)">
+          <h4 style="color:var(--accent)">📊 COMMODITY PIP GUIDE</h4>
+          <p>Gold: SL 200–500 pips typical. Silver: SL 500–1500 pips. Oil: SL 100–300 pips. Always use smaller lot sizes
+            for commodities than FX — they move much more in dollar terms per pip.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== LIVE CHART ======== -->
+    <div id="livechart" class="section">
+      <div class="section-title">Live Chart</div>
+      <div class="section-sub">Real-time candlestick chart — FX rates via ECB, commodities simulated. Updates every 3 seconds.</div>
+
+      <div class="chart-toolbar">
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="chart-pair-btns">
+          <button class="chart-pair-btn active" onclick="setChartPair('EURUSD')">EUR/USD</button>
+          <button class="chart-pair-btn" onclick="setChartPair('GBPUSD')">GBP/USD</button>
+          <button class="chart-pair-btn" onclick="setChartPair('USDJPY')">USD/JPY</button>
+          <button class="chart-pair-btn" onclick="setChartPair('AUDUSD')">AUD/USD</button>
+          <button class="chart-pair-btn" onclick="setChartPair('USDCHF')">USD/CHF</button>
+          <button class="chart-pair-btn" onclick="setChartPair('USDCAD')">USD/CAD</button>
+          <button class="chart-pair-btn" onclick="setChartPair('GBPJPY')">GBP/JPY</button>
+          <button class="chart-pair-btn" onclick="setChartPair('XAUUSD')" style="color:#ffd700">XAU/USD</button>
+          <button class="chart-pair-btn" onclick="setChartPair('XAGUSD')" style="color:#c0c0c0">XAG/USD</button>
+          <button class="chart-pair-btn" onclick="setChartPair('WTIOIL')" style="color:#f4a460">WTI/OIL</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-left:auto" id="chart-tf-btns">
+          <button class="chart-tf-btn" onclick="setChartTF(60)">M1</button>
+          <button class="chart-tf-btn active" onclick="setChartTF(300)">M5</button>
+          <button class="chart-tf-btn" onclick="setChartTF(900)">M15</button>
+          <button class="chart-tf-btn" onclick="setChartTF(3600)">H1</button>
+        </div>
+      </div>
+
+      <div id="chart-container">
+        <div class="chart-overlay-info">
+          <div><span class="chart-live-dot"></span><span class="co-pair" id="co-pair">EUR/USD</span></div>
+          <div class="co-price" id="co-price">—</div>
+          <div id="co-chg" class="co-chg">—</div>
+        </div>
+      </div>
+
+      <div class="alert alert-info" style="margin-top:16px">
+        💡 FX rates (EUR/USD, GBP/USD, etc.) are real ECB daily rates with simulated micro-movements. Gold, Silver & Oil are fully simulated from approximate market prices. Hover over chart to inspect candles.
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <script>
+  // ============================================================
+  // LIVE PRICE SYSTEM
+  // FX rates: Frankfurter API (ECB daily rates, free, no key)
+  // Commodities: simulated tick (±0.03% per 3s) — no free RT API
+  // ============================================================
+
+  const PAIRS = [
+    { label: 'EUR/USD', key: 'EURUSD', dec: 4 },
+    { label: 'GBP/USD', key: 'GBPUSD', dec: 4 },
+    { label: 'USD/JPY', key: 'USDJPY', dec: 2 },
+    { label: 'AUD/USD', key: 'AUDUSD', dec: 4 },
+    { label: 'USD/CHF', key: 'USDCHF', dec: 4 },
+    { label: 'USD/CAD', key: 'USDCAD', dec: 4 },
+    { label: 'NZD/USD', key: 'NZDUSD', dec: 4 },
+    { label: 'GBP/JPY', key: 'GBPJPY', dec: 2 },
+    { label: 'XAU/USD', key: 'XAUUSD', dec: 2, color: '#ffd700' },
+    { label: 'XAG/USD', key: 'XAGUSD', dec: 2, color: '#c0c0c0' },
+    { label: 'WTI/OIL', key: 'WTIOIL', dec: 2, color: '#f4a460' },
+    { label: 'BCO/OIL', key: 'BCOOIL', dec: 2, color: '#f4a460' },
+  ];
+
+  // price state: current value + previous value (for % change calc)
+  const px = {
+    EURUSD: { v: 1.0842, open: 1.0842 },
+    GBPUSD: { v: 1.2731, open: 1.2731 },
+    USDJPY: { v: 149.23, open: 149.23 },
+    AUDUSD: { v: 0.6542, open: 0.6542 },
+    USDCHF: { v: 0.8983, open: 0.8983 },
+    USDCAD: { v: 1.3614, open: 1.3614 },
+    NZDUSD: { v: 0.6018, open: 0.6018 },
+    GBPJPY: { v: 189.74, open: 189.74 },
+    XAUUSD: { v: 2931.40, open: 2931.40 },
+    XAGUSD: { v: 32.87,   open: 32.87   },
+    WTIOIL: { v: 68.42,   open: 68.42   },
+    BCOOIL: { v: 72.18,   open: 72.18   },
+  };
+
+  // Fetch real ECB FX rates via Frankfurter (no API key needed)
+  async function fetchFXRates() {
+    try {
+      const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,AUD,CHF,CAD,NZD');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const r = data.rates;
+      px.EURUSD.v = px.EURUSD.open = +(1 / r.EUR).toFixed(4);
+      px.GBPUSD.v = px.GBPUSD.open = +(1 / r.GBP).toFixed(4);
+      px.USDJPY.v = px.USDJPY.open = +r.JPY.toFixed(2);
+      px.AUDUSD.v = px.AUDUSD.open = +(1 / r.AUD).toFixed(4);
+      px.USDCHF.v = px.USDCHF.open = +r.CHF.toFixed(4);
+      px.USDCAD.v = px.USDCAD.open = +r.CAD.toFixed(4);
+      px.NZDUSD.v = px.NZDUSD.open = +(1 / r.NZD).toFixed(4);
+      px.GBPJPY.v = px.GBPJPY.open = +((1 / r.GBP) * r.JPY).toFixed(2);
+      document.getElementById('session-status').textContent = 'LIVE';
+      document.getElementById('session-status').style.color = 'var(--green)';
+    } catch (e) {
+      document.getElementById('session-status').textContent = 'SIM';
+      document.getElementById('session-status').style.color = 'var(--gold)';
+    }
+    renderPrices();
+  }
+
+  // Apply tiny random drift to every pair each tick
+  function tickPrices() {
+    for (const key in px) {
+      const drift = px[key].v * (Math.random() * 0.0006 - 0.0003);
+      const pair = PAIRS.find(p => p.key === key);
+      px[key].v = +(px[key].v + drift).toFixed(pair ? pair.dec : 4);
+    }
+    renderPrices();
+    // Update live chart candle if chart is active
+    if (typeof updateChartCandle === 'function') updateChartCandle();
+  }
+
+  function pctChange(cur, open) {
+    return ((cur - open) / open * 100);
+  }
+
+  function renderPrices() {
+    renderTicker();
+    updateHeader();
+  }
+
+  function renderTicker() {
+    const track = document.getElementById('ticker-track');
+    if (!track) return;
+    let html = '';
+    // build items twice for seamless infinite scroll
+    for (let pass = 0; pass < 2; pass++) {
+      for (const p of PAIRS) {
+        const { v, open } = px[p.key];
+        const pct = pctChange(v, open);
+        const up = pct >= 0;
+        const sign = up ? '▲ +' : '▼ ';
+        const colorStyle = p.color ? ` style="color:${p.color}"` : '';
+        const priceStr = v.toLocaleString('en-US', { minimumFractionDigits: p.dec, maximumFractionDigits: p.dec });
+        html += `<div class="ticker-item">` +
+          `<span class="pair"${colorStyle}>${p.label}</span>` +
+          `<span class="price">${priceStr}</span>` +
+          `<span class="change ${up ? 'up' : 'dn'}">${sign}${Math.abs(pct).toFixed(2)}%</span>` +
+          `</div>`;
+      }
+    }
+    track.innerHTML = html;
+  }
+
+  function updateHeader() {
+    const setHdr = (id, label, key, color) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const { v, open } = px[key];
+      const pct = pctChange(v, open);
+      const up = pct >= 0;
+      const pair = PAIRS.find(p => p.key === key);
+      const priceStr = v.toLocaleString('en-US', { minimumFractionDigits: pair.dec, maximumFractionDigits: pair.dec });
+      const c = color || (up ? 'var(--green)' : 'var(--red)');
+      el.innerHTML = `${label} <b style="color:${c}">${priceStr}</b>`;
+      el.className = 'status-item' + ((!color && !up) ? ' bear' : '');
+    };
+    setHdr('hdr-EURUSD', 'EUR/USD', 'EURUSD');
+    setHdr('hdr-GBPUSD', 'GBP/USD', 'GBPUSD');
+    setHdr('hdr-XAUUSD', 'XAU/USD', 'XAUUSD', '#ffd700');
+  }
+
+  // Boot: fetch real FX, then tick every 3 seconds
+  window.addEventListener('DOMContentLoaded', () => {
+    fetchFXRates();
+    setInterval(tickPrices, 3000);
+    // Re-fetch real ECB rates every 5 minutes
+    setInterval(fetchFXRates, 5 * 60 * 1000);
+  });
+
+  // ============================================================
+
+    function showTab(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      // Highlight the matching tab by id mapping, works whether called from tab or roadmap card
+      const tabMap = { start: 0, candles: 1, patterns: 2, script: 3, risk: 4, glossary: 5, livechart: 6 };
+      const tabs = document.querySelectorAll('.tab');
+      if (tabMap[id] !== undefined && tabs[tabMap[id]]) {
+        tabs[tabMap[id]].classList.add('active');
+      }
+    }
+
+    function calcRisk() {
+      const bal = parseFloat(document.getElementById('balance').value) || 0;
+      const pct = parseFloat(document.getElementById('riskPct').value) || 1;
+      const sl = parseFloat(document.getElementById('slPipsR').value) || 0;
+      const pv = parseFloat(document.getElementById('pipVal').value) || 10;
+
+      if (!bal || !sl) return;
+
+      const riskDollar = (bal * pct / 100).toFixed(2);
+      const stdLotNum = parseFloat(riskDollar) / (sl * pv);
+      const stdLot = stdLotNum.toFixed(4);
+      const miniLot = (stdLotNum * 10).toFixed(3);
+      const microLot = (stdLotNum * 100).toFixed(2);
+
+      document.getElementById('rDollar').textContent = '$' + riskDollar;
+      document.getElementById('rLot').textContent = stdLot;
+      document.getElementById('rMini').textContent = miniLot;
+      document.getElementById('rMicro').textContent = microLot;
+    }
+
+    function generateScript() {
+      const pairRaw = document.getElementById('pair').value;
+      const pair = pairRaw.replace('/', '');
+      const pairDisplay = pairRaw;
+      const pattern = document.getElementById('pattern').value;
+      const dir = document.getElementById('direction').value;
+      const stype = document.getElementById('scriptType').value;
+      const entry = document.getElementById('entry').value || '1.08420';
+      const slPips = document.getElementById('slPips').value || '30';
+      const tp1 = document.getElementById('tp1').value || '60';
+      const tp2 = document.getElementById('tp2').value || '100';
+
+      // Commodity pip size map (1 pip = X price units)
+      const pipSizeMap = {
+        'XAUUSD': 0.10,   // Gold: 1 pip = $0.10
+        'XAGUSD': 0.01,   // Silver: 1 pip = $0.01
+        'XPTUSD': 0.10,   // Platinum
+        'WTIUSD': 0.01,   // WTI Oil
+        'BCOUSD': 0.01,   // Brent Oil
+      };
+      const pipSize = pipSizeMap[pair] || 0.0001;  // Default FX
+      const isJPY = pair.includes('JPY');
+      const effectivePip = isJPY ? 0.01 : pipSize;
+
+      // Commodity label map
+      const labelMap = {
+        'XAUUSD': 'Gold', 'XAGUSD': 'Silver', 'XPTUSD': 'Platinum',
+        'WTIUSD': 'WTI Crude Oil', 'BCOUSD': 'Brent Crude Oil'
+      };
+      const instrumentLabel = labelMap[pair] || pairDisplay;
+
+      // OANDA instrument names
+      const oandaMap = {
+        'XAUUSD': 'XAU_USD', 'XAGUSD': 'XAG_USD', 'XPTUSD': 'XPT_USD',
+        'WTIUSD': 'WTICO_USD', 'BCOUSD': 'BCO_USD'
+      };
+      const oandaPair = oandaMap[pair] || (pair.substring(0, 3) + '_' + pair.substring(3));
+
+      const isBuy = dir.includes('BUY');
+
+      const slPrice = isBuy
+        ? (parseFloat(entry) - parseFloat(slPips) * effectivePip).toFixed(effectivePip < 0.001 ? 5 : 2)
+        : (parseFloat(entry) + parseFloat(slPips) * effectivePip).toFixed(effectivePip < 0.001 ? 5 : 2);
+      const tp1Price = isBuy
+        ? (parseFloat(entry) + parseFloat(tp1) * effectivePip).toFixed(effectivePip < 0.001 ? 5 : 2)
+        : (parseFloat(entry) - parseFloat(tp1) * effectivePip).toFixed(effectivePip < 0.001 ? 5 : 2);
+      const tp2Price = isBuy
+        ? (parseFloat(entry) + parseFloat(tp2) * effectivePip).toFixed(effectivePip < 0.001 ? 5 : 2)
+        : (parseFloat(entry) - parseFloat(tp2) * effectivePip).toFixed(effectivePip < 0.001 ? 5 : 2);
+
+      const isCommodity = !!pipSizeMap[pair];
+      const pipNote = isCommodity
+        ? `1 pip = $${effectivePip} | SL=${slPrice} | TP1=${tp1Price} | TP2=${tp2Price}`
+        : `1 pip = ${effectivePip} | SL=${slPrice} | TP1=${tp1Price} | TP2=${tp2Price}`;
+
+      let code = '';
+      let lang = '';
+
+      if (stype.includes('MT4') || stype.includes('MQL4')) {
+        lang = 'MQL4 (MetaTrader 4)';
+
+        code = `<span class="cmt">// ============================================</span>
+<span class="cmt">// Pattern: ${pattern}</span>
+<span class="cmt">// Instrument: ${instrumentLabel} (${pairDisplay}) | ${dir}</span>
+<span class="cmt">// ${pipNote}</span>
+<span class="cmt">// Generated by FX Academy</span>
+<span class="cmt">// ============================================</span>
+
+<span class="kw">#property</span> <span class="var">copyright</span> <span class="str">"FX Academy"</span>
+<span class="kw">#property</span> <span class="var">strict</span>
+
+<span class="cmt">// ---- INPUTS ----</span>
+<span class="kw">extern</span> <span class="var">double</span> LotSize      = <span class="num">0.01</span>;   <span class="cmt">// Use position size calculator!</span>
+<span class="kw">extern</span> <span class="var">double</span> EntryPrice   = <span class="num">${entry}</span>;
+<span class="kw">extern</span> <span class="var">double</span> StopLoss     = <span class="num">${slPrice}</span>;  <span class="cmt">// SL: ${slPips} pips</span>
+<span class="kw">extern</span> <span class="var">double</span> TakeProfit1  = <span class="num">${tp1Price}</span>;  <span class="cmt">// TP1: ${tp1} pips</span>
+<span class="kw">extern</span> <span class="var">double</span> TakeProfit2  = <span class="num">${tp2Price}</span>;  <span class="cmt">// TP2: ${tp2} pips</span>
+<span class="kw">extern</span> <span class="var">int</span>    MagicNumber  = <span class="num">12345</span>;
+<span class="kw">extern</span> <span class="var">int</span>    Slippage     = <span class="num">3</span>;
+
+<span class="kw">int</span> <span class="fn">OnInit</span>() {
+   <span class="fn">Alert</span>(<span class="str">"${pattern} Script Loaded — ${instrumentLabel}"</span>);
+   <span class="kw">return</span>(<span class="var">INIT_SUCCEEDED</span>);
+}
+
+<span class="kw">void</span> <span class="fn">OnTick</span>() {
+   <span class="cmt">// Only open if no position exists</span>
+   <span class="kw">if</span> (<span class="fn">OrdersTotal</span>() > <span class="num">0</span>) <span class="kw">return</span>;
+   
+   <span class="var">double</span> currentPrice = ${isBuy ? 'Ask' : 'Bid'};
+   <span class="var">double</span> tolerance     = <span class="num">${isCommodity ? (effectivePip * 20).toFixed(2) : '0.00020'}</span>; <span class="cmt">// ~2 pip tolerance</span>
+   
+   <span class="cmt">// Check if price is near entry level</span>
+   <span class="kw">if</span> (<span class="fn">MathAbs</span>(currentPrice - EntryPrice) < tolerance) {
+      <span class="var">int</span> ticket = <span class="fn">OrderSend</span>(
+         <span class="fn">Symbol</span>(),
+         <span class="num">${isBuy ? 'OP_BUY' : 'OP_SELL'}</span>,
+         LotSize,
+         currentPrice,
+         Slippage,
+         StopLoss,
+         TakeProfit1,
+         <span class="str">"${pattern} | TP1"</span>,
+         MagicNumber,
+         <span class="num">0</span>,
+         ${isBuy ? 'clrLime' : 'clrRed'}
+      );
+      
+      <span class="kw">if</span> (ticket > <span class="num">0</span>) {
+         <span class="fn">Print</span>(<span class="str">"✓ Order placed: "</span>, ticket);
+         <span class="cmt">// Open second lot for TP2</span>
+         <span class="var">int</span> ticket2 = <span class="fn">OrderSend</span>(
+            <span class="fn">Symbol</span>(),
+            <span class="num">${isBuy ? 'OP_BUY' : 'OP_SELL'}</span>,
+            LotSize,
+            currentPrice,
+            Slippage,
+            StopLoss,
+            TakeProfit2,
+            <span class="str">"${pattern} | TP2"</span>,
+            MagicNumber,
+            <span class="num">0</span>,
+            ${isBuy ? 'clrLime' : 'clrRed'}
+         );
+         <span class="fn">Print</span>(<span class="str">"✓ TP2 order: "</span>, ticket2);
+      } <span class="kw">else</span> {
+         <span class="fn">Print</span>(<span class="str">"✗ Error: "</span>, <span class="fn">GetLastError</span>());
+      }
+   }
+}`;
+
+      } else if (stype.includes('MQL5')) {
+        lang = 'MQL5 (MetaTrader 5)';
+        code = `<span class="cmt">// ============================================</span>
+<span class="cmt">// Pattern: ${pattern} | ${instrumentLabel} | ${dir}</span>
+<span class="cmt">// ${pipNote}</span>
+<span class="cmt">// MetaTrader 5 Script</span>
+<span class="cmt">// ============================================</span>
+
+<span class="kw">#include</span> <span class="str">&lt;Trade\\Trade.mqh&gt;</span>
+<span class="var">CTrade</span> trade;
+
+<span class="kw">input</span> <span class="var">double</span> InpLotSize    = <span class="num">0.01</span>;
+<span class="kw">input</span> <span class="var">double</span> InpEntry      = <span class="num">${entry}</span>;
+<span class="kw">input</span> <span class="var">double</span> InpSLPips     = <span class="num">${slPips}</span>;   <span class="cmt">// Stop Loss in pips</span>
+<span class="kw">input</span> <span class="var">double</span> InpTP1Pips    = <span class="num">${tp1}</span>;    <span class="cmt">// Take Profit 1 pips</span>
+<span class="kw">input</span> <span class="var">double</span> InpTP2Pips    = <span class="num">${tp2}</span>;   <span class="cmt">// Take Profit 2 pips</span>
+
+<span class="kw">int</span> <span class="fn">OnInit</span>() {
+   <span class="var">double</span> point = <span class="fn">SymbolInfoDouble</span>(<span class="fn">_Symbol</span>, <span class="var">SYMBOL_POINT</span>);
+   <span class="var">double</span> sl     = InpEntry ${isBuy ? '-' : '+'} InpSLPips  * point * <span class="num">10</span>;
+   <span class="var">double</span> tp1    = InpEntry ${isBuy ? '+' : '-'} InpTP1Pips * point * <span class="num">10</span>;
+   <span class="var">double</span> tp2    = InpEntry ${isBuy ? '+' : '-'} InpTP2Pips * point * <span class="num">10</span>;
+
+   trade.SetExpertMagicNumber(<span class="num">99001</span>);
+   
+   <span class="cmt">// Place order at entry with TP1</span>
+   <span class="kw">if</span> (trade.${isBuy ? 'Buy' : 'Sell'}(InpLotSize, <span class="fn">_Symbol</span>, <span class="num">0</span>, sl, tp1, <span class="str">"${pattern} TP1"</span>)) {
+      <span class="fn">Print</span>(<span class="str">"✓ TP1 order sent"</span>);
+   }
+   <span class="cmt">// Place order at entry with TP2</span>
+   <span class="kw">if</span> (trade.${isBuy ? 'Buy' : 'Sell'}(InpLotSize, <span class="fn">_Symbol</span>, <span class="num">0</span>, sl, tp2, <span class="str">"${pattern} TP2"</span>)) {
+      <span class="fn">Print</span>(<span class="str">"✓ TP2 order sent"</span>);
+   }
+   <span class="kw">return</span>(<span class="var">INIT_SUCCEEDED</span>);
+}
+
+<span class="kw">void</span> <span class="fn">OnDeinit</span>(<span class="kw">const int</span> reason) {}
+<span class="kw">void</span> <span class="fn">OnTick</span>() {}`;
+
+      } else if (stype.includes('Pine')) {
+        lang = 'Pine Script v5 (TradingView)';
+        code = `<span class="cmt">// ============================================</span>
+<span class="cmt">// ${pattern} Strategy</span>
+<span class="cmt">// ${instrumentLabel} (${pairDisplay}) | ${dir}</span>
+<span class="cmt">// ${pipNote}</span>
+<span class="cmt">// TradingView Pine Script v5</span>
+<span class="cmt">// ============================================</span>
+
+<span class="fn">//@version=5</span>
+<span class="fn">strategy</span>(<span class="str">"${pattern} — ${pairDisplay}"</span>, overlay=<span class="kw">true</span>, 
+         default_qty_type=strategy.fixed, default_qty_value=<span class="num">1</span>)
+
+<span class="cmt">// ---- INPUTS ----</span>
+entryPrice  = <span class="fn">input.float</span>(<span class="num">${entry}</span>,  <span class="str">"Entry Price"</span>)
+slPips      = <span class="fn">input.int</span>(<span class="num">${slPips}</span>,    <span class="str">"Stop Loss (pips)"</span>)
+tp1Pips     = <span class="fn">input.int</span>(<span class="num">${tp1}</span>,    <span class="str">"Take Profit 1 (pips)"</span>)
+tp2Pips     = <span class="fn">input.int</span>(<span class="num">${tp2}</span>,   <span class="str">"Take Profit 2 (pips)"</span>)
+
+<span class="var">pipSize</span> = syminfo.mintick * <span class="num">10</span>
+
+<span class="var">slLevel</span>  = entryPrice ${isBuy ? '-' : '+'} slPips  * pipSize
+<span class="var">tp1Level</span> = entryPrice ${isBuy ? '+' : '-'} tp1Pips * pipSize
+<span class="var">tp2Level</span> = entryPrice ${isBuy ? '+' : '-'} tp2Pips * pipSize
+
+<span class="cmt">// ---- ENTRY CONDITION ----</span>
+<span class="cmt">// Price crosses entry level</span>
+<span class="var">entrySignal</span> = ${isBuy ? 'ta.crossover' : 'ta.crossunder'}(close, entryPrice)
+
+<span class="kw">if</span> entrySignal
+    strategy.${isBuy ? 'entry' : 'entry'}(<span class="str">"${pattern}"</span>, strategy.${isBuy ? 'long' : 'short'})
+    strategy.exit(<span class="str">"TP1"</span>, <span class="str">"${pattern}"</span>, stop=slLevel, limit=tp1Level, qty_percent=<span class="num">50</span>)
+    strategy.exit(<span class="str">"TP2"</span>, <span class="str">"${pattern}"</span>, stop=slLevel, limit=tp2Level, qty_percent=<span class="num">50</span>)
+
+<span class="cmt">// ---- VISUAL LEVELS ----</span>
+<span class="fn">plot</span>(<span class="fn">line.new</span>(bar_index, entryPrice, bar_index, entryPrice) ? na : na)
+<span class="var">hline</span>(entryPrice, <span class="str">"Entry"</span>,  color=color.white,  linestyle=hline.style_solid)
+<span class="var">hline</span>(slLevel,    <span class="str">"SL"</span>,     color=color.red,    linestyle=hline.style_dashed)
+<span class="var">hline</span>(tp1Level,   <span class="str">"TP1"</span>,    color=color.green,  linestyle=hline.style_dashed)
+<span class="var">hline</span>(tp2Level,   <span class="str">"TP2"</span>,    color=color.lime,   linestyle=hline.style_dotted)
+
+<span class="cmt">// ---- ALERTS ----</span>
+<span class="fn">alertcondition</span>(entrySignal, <span class="str">"${pattern} Entry"</span>, <span class="str">"${pattern} signal on ${pairDisplay}!"</span>)`;
+
+      } else {
+        lang = 'Python (OANDA API)';
+        code = `<span class="cmt">"""</span>
+<span class="cmt">Pattern: ${pattern}</span>
+<span class="cmt">Instrument: ${instrumentLabel} (${pairDisplay}) | ${dir}</span>
+<span class="cmt">${pipNote}</span>
+<span class="cmt">OANDA REST API v20 — Python Script</span>
+<span class="cmt">pip install oandapyV20</span>
+<span class="cmt">"""</span>
+
+<span class="kw">import</span> <span class="var">oandapyV20</span>
+<span class="kw">import</span> <span class="var">oandapyV20.endpoints.orders</span> <span class="kw">as</span> <span class="var">orders</span>
+<span class="kw">from</span> <span class="var">oandapyV20.contrib.requests</span> <span class="kw">import</span> <span class="var">MarketOrderRequest</span>
+
+<span class="cmt"># ---- CONFIG ----</span>
+<span class="var">ACCOUNT_ID</span> = <span class="str">"your_account_id"</span>
+<span class="var">API_TOKEN</span>  = <span class="str">"your_api_token"</span>   <span class="cmt"># Get from OANDA dashboard</span>
+<span class="var">PRACTICE</span>   = <span class="kw">True</span>               <span class="cmt"># True = Demo, False = Live</span>
+
+<span class="cmt"># ---- TRADE PARAMETERS ----</span>
+<span class="var">INSTRUMENT</span>  = <span class="str">"${oandaPair}"</span>
+<span class="var">UNITS</span>       = <span class="num">${isBuy ? '1000' : '-1000'}</span>   <span class="cmt"># Positive=BUY, Negative=SELL | 1000 = 0.01 lot</span>
+<span class="var">ENTRY</span>       = <span class="num">${entry}</span>
+<span class="var">STOP_LOSS</span>   = <span class="num">${slPrice}</span>
+<span class="var">TAKE_PROFIT_1</span> = <span class="num">${tp1Price}</span>
+<span class="var">TAKE_PROFIT_2</span> = <span class="num">${tp2Price}</span>
+
+<span class="kw">def</span> <span class="fn">place_trade</span>(tp, label):
+    client = oandapyV20.API(
+        access_token=API_TOKEN,
+        environment=<span class="str">"practice"</span> <span class="kw">if</span> PRACTICE <span class="kw">else</span> <span class="str">"live"</span>
+    )
+    
+    order_data = {
+        <span class="str">"order"</span>: {
+            <span class="str">"type"</span>: <span class="str">"MARKET"</span>,
+            <span class="str">"instrument"</span>: INSTRUMENT,
+            <span class="str">"units"</span>: <span class="fn">str</span>(UNITS // <span class="num">2</span>),  <span class="cmt"># Split lot between TP1 and TP2</span>
+            <span class="str">"stopLossOnFill"</span>: {<span class="str">"price"</span>: <span class="fn">str</span>(STOP_LOSS)},
+            <span class="str">"takeProfitOnFill"</span>: {<span class="str">"price"</span>: <span class="fn">str</span>(tp)},
+            <span class="str">"clientExtensions"</span>: {<span class="str">"comment"</span>: <span class="fn">f</span><span class="str">"${pattern} {label}"</span>}
+        }
+    }
+    
+    r = orders.OrderCreate(ACCOUNT_ID, data=order_data)
+    <span class="kw">try</span>:
+        client.request(r)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"✓ {label} order placed: {r.response}"</span>)
+    <span class="kw">except</span> <span class="var">Exception</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"✗ Error: {e}"</span>)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="str">"Placing ${pattern} trade on {INSTRUMENT}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="str">"Entry: {ENTRY} | SL: {STOP_LOSS} | TP1: {TAKE_PROFIT_1} | TP2: {TAKE_PROFIT_2}"</span>)
+    <span class="fn">place_trade</span>(TAKE_PROFIT_1, <span class="str">"TP1"</span>)
+    <span class="fn">place_trade</span>(TAKE_PROFIT_2, <span class="str">"TP2"</span>)`;
+      }
+
+      document.getElementById('codeLang').textContent = lang;
+      document.getElementById('codeBlock').innerHTML = code;
+      document.getElementById('codeOutput').style.display = 'block';
+      document.getElementById('codeOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function copyCode() {
+      const text = document.getElementById('codeBlock').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        btn.textContent = 'COPIED!';
+        setTimeout(() => btn.textContent = 'COPY CODE', 2000);
+      });
+    }
+
+  // ============================================================
+  // LIVE CHART  (TradingView Lightweight Charts v4)
+  // ============================================================
+
+  let lwChart = null;
+  let candleSeries = null;
+  let chartPair = 'EURUSD';
+  let chartTF = 300; // seconds per candle
+  const candleHistory = {}; // key → array of OHLCV candles
+
+  function initChart() {
+    const container = document.getElementById('chart-container');
+    if (!container || typeof LightweightCharts === 'undefined') return;
+
+    lwChart = LightweightCharts.createChart(container, {
+      layout: {
+        background: { color: '#0d1117' },
+        textColor: '#6b7280',
+      },
+      grid: {
+        vertLines: { color: '#1a1d25' },
+        horzLines: { color: '#1a1d25' },
+      },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      rightPriceScale: { borderColor: '#22262e' },
+      timeScale: { borderColor: '#22262e', timeVisible: true, secondsVisible: false },
+      width: container.clientWidth,
+      height: container.clientHeight,
+    });
+
+    candleSeries = lwChart.addCandlestickSeries({
+      upColor:   '#00ff88',
+      downColor: '#ff3b5c',
+      borderUpColor:   '#00ff88',
+      borderDownColor: '#ff3b5c',
+      wickUpColor:   '#00ff88',
+      wickDownColor: '#ff3b5c',
+    });
+
+    // Responsive resize
+    const ro = new ResizeObserver(() => {
+      lwChart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    });
+    ro.observe(container);
+
+    buildHistoricalCandles(chartPair);
+    setChartPair(chartPair);
+  }
+
+  // Generate plausible historical candles for the selected pair + TF
+  function buildHistoricalCandles(key) {
+    if (candleHistory[key + chartTF]) return; // already built
+    const pair = PAIRS.find(p => p.key === key);
+    const dec = pair ? pair.dec : 4;
+    let price = px[key].open;
+    const now = Math.floor(Date.now() / 1000);
+    const candles = [];
+    const count = 120; // 120 historical candles
+    for (let i = count; i >= 1; i--) {
+      const t = Math.floor((now - i * chartTF) / chartTF) * chartTF;
+      const volatility = price * 0.0012; // ~0.12% per candle
+      const open = price;
+      const close = +(open + (Math.random() - 0.5) * volatility * 2).toFixed(dec);
+      const high  = +(Math.max(open, close) + Math.random() * volatility).toFixed(dec);
+      const low   = +(Math.min(open, close) - Math.random() * volatility).toFixed(dec);
+      candles.push({ time: t, open, high, low, close });
+      price = close;
+    }
+    candleHistory[key + chartTF] = candles;
+    // Sync live price to end of history
+    px[key].v = price;
+    px[key].open = price;
+  }
+
+  function setChartPair(key) {
+    chartPair = key;
+    // Update pair buttons
+    document.querySelectorAll('.chart-pair-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.replace('/', '') === key.replace('OIL','OIL'));
+    });
+    // Use label for matching
+    const pair = PAIRS.find(p => p.key === key);
+    document.querySelectorAll('.chart-pair-btn').forEach(b => {
+      b.classList.toggle('active', pair && b.textContent.trim() === pair.label);
+    });
+    document.getElementById('co-pair').textContent = pair ? pair.label : key;
+    buildHistoricalCandles(key);
+    if (candleSeries) {
+      candleSeries.setData(candleHistory[key + chartTF] || []);
+      lwChart.timeScale().fitContent();
+    }
+    updateChartOverlay();
+  }
+
+  function setChartTF(tf) {
+    chartTF = tf;
+    document.querySelectorAll('.chart-tf-btn').forEach(b => {
+      const map = { 'M1': 60, 'M5': 300, 'M15': 900, 'H1': 3600 };
+      b.classList.toggle('active', map[b.textContent] === tf);
+    });
+    // Rebuild history for new TF
+    delete candleHistory[chartPair + chartTF];
+    buildHistoricalCandles(chartPair);
+    if (candleSeries) {
+      candleSeries.setData(candleHistory[chartPair + chartTF] || []);
+      lwChart.timeScale().fitContent();
+    }
+  }
+
+  // Called on every price tick — updates the current (last) candle
+  function updateChartCandle() {
+    if (!candleSeries || !candleHistory[chartPair + chartTF]) return;
+    const history = candleHistory[chartPair + chartTF];
+    const nowSec = Math.floor(Date.now() / 1000);
+    const candleTime = Math.floor(nowSec / chartTF) * chartTF;
+    const price = px[chartPair].v;
+    const last = history[history.length - 1];
+
+    if (last && last.time === candleTime) {
+      // Update current candle
+      last.close = price;
+      last.high  = Math.max(last.high, price);
+      last.low   = Math.min(last.low, price);
+      candleSeries.update(last);
+    } else {
+      // New candle
+      const newCandle = { time: candleTime, open: price, high: price, low: price, close: price };
+      history.push(newCandle);
+      candleSeries.update(newCandle);
+    }
+    updateChartOverlay();
+  }
+
+  function updateChartOverlay() {
+    const pair = PAIRS.find(p => p.key === chartPair);
+    const { v, open } = px[chartPair] || { v: 0, open: 0 };
+    const dec = pair ? pair.dec : 4;
+    const pct = ((v - open) / open * 100);
+    const up = pct >= 0;
+    const priceEl = document.getElementById('co-price');
+    const chgEl   = document.getElementById('co-chg');
+    if (priceEl) priceEl.textContent = v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    if (chgEl) {
+      chgEl.textContent = (up ? '▲ +' : '▼ ') + Math.abs(pct).toFixed(2) + '%';
+      chgEl.className = 'co-chg ' + (up ? 'up' : 'dn');
+    }
+  }
+
+  // Init chart when Live Chart tab is first opened
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('[onclick="showTab(\'livechart\')"]')
+      ?.addEventListener('click', () => {
+        if (!lwChart) setTimeout(initChart, 80);
+      });
+  });
+  </script>
+</body>
+
+</html>

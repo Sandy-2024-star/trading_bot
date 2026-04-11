@@ -1,0 +1,77 @@
+# Core dependencies
+httpx>=0.27.0
+requests>=2.31.0
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Data storage
+redis>=5.0.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+
+# API framework
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pydantic>=2.6.0
+websockets>=12.0
+
+# Configuration
+python-dotenv>=1.0.0
+
+# Date/time handling
+python-dateutil>=2.8.2
+
+# Async support
+aiohttp>=3.9.0
+asyncio>=3.4.3
+
+# Logging
+loguru>=0.7.2
+
+# Indian Market (Shoonya)
+NorenRestApiPy>=0.0.22
+pyotp>=2.9.0
+
+# ============================================================
+# FREE MARKET DATA LIBRARIES (No API Keys Required)
+# ============================================================
+
+# Yahoo Finance - Stocks, ETFs, Forex, Crypto (FREE)
+yfinance>=0.2.40
+
+# CCXT - Crypto exchanges (30+ exchanges, FREE tier)
+ccxt>=4.3.0
+
+# Technical Analysis (TA) indicators (FREE)
+ta>=0.11.0
+ta-lib>=0.4.28
+
+# ============================================================
+# MCP INTEGRATION (Optional - for AI agents)
+# ============================================================
+
+# Tavily Search API (1000 free queries/month)
+tavily-python>=0.3.0
+
+# Local LLM support for sentiment (optional)
+litellm>=1.0.0
+
+# ============================================================
+# MT5 INTEGRATION
+# ============================================================
+
+# AI and Machine Learning
+tensorflow>=2.15.0
+scikit-learn>=1.4.0
+
+# Dashboard Security (JWT)
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.1.0
+
+# Quantitative Analysis & Monitoring
+statsmodels>=0.14.0
+prometheus_client>=0.19.0
+
+# MetaApi Cloud SDK for MT5 (Free tier: 500 transactions/month)
+metaapi-cloud-sdk>=5.0.0
