@@ -5,14 +5,28 @@ Provides real-time web interface with light/dark/system themes.
 
 import asyncio
 from datetime import datetime
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, BackgroundTasks, HTTPException, status, Depends
+from fastapi import (
+    FastAPI,
+    WebSocket,
+    WebSocketDisconnect,
+    BackgroundTasks,
+    HTTPException,
+    status,
+    Depends,
+)
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Any
 from loguru import logger
 from fastapi.security import OAuth2PasswordRequestForm
 
 from monitoring.dashboard_data import DashboardData
-from monitoring.auth import create_access_token, get_current_user, authenticate_user, oauth2_scheme
+from monitoring.auth import (
+    create_access_token,
+    get_current_user,
+    authenticate_user,
+    oauth2_scheme,
+)
 
 
 class WebDashboard:
@@ -26,11 +40,20 @@ class WebDashboard:
     - Auto-refresh
     """
 
-    def __init__(self, dashboard_data: DashboardData, host: str = "0.0.0.0", port: int = 8000):
+    def __init__(
+        self, dashboard_data: DashboardData, host: str = "0.0.0.0", port: int = 8000
+    ):
         self.dashboard_data = dashboard_data
         self.host = host
         self.port = port
         self.app = FastAPI(title="Trading Bot Dashboard")
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
         self.active_connections: List[WebSocket] = []
 
         self._setup_routes()
@@ -40,7 +63,7 @@ class WebDashboard:
         """Broadcast a message to all connected WebSocket clients."""
         if not self.active_connections:
             return
-            
+
         json_data = self._serialize_for_json(message)
         disconnected = []
         for connection in self.active_connections:
@@ -48,7 +71,7 @@ class WebDashboard:
                 await connection.send_json(json_data)
             except Exception:
                 disconnected.append(connection)
-        
+
         for conn in disconnected:
             if conn in self.active_connections:
                 self.active_connections.remove(conn)
@@ -75,8 +98,10 @@ class WebDashboard:
         async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             """Authenticate user and return JWT."""
             if not authenticate_user(form_data.username, form_data.password):
-                raise HTTPException(status_code=401, detail="Incorrect username or password")
-            
+                raise HTTPException(
+                    status_code=401, detail="Incorrect username or password"
+                )
+
             access_token = create_access_token(data={"sub": form_data.username})
             return {"access_token": access_token, "token_type": "bearer"}
 
@@ -87,30 +112,68 @@ class WebDashboard:
             return self._serialize_for_json(data)
 
         @self.app.get("/api/candles/{symbol}")
-        async def get_candles(symbol: str, timeframe: str = "1h", limit: int = 100, user: str = Depends(get_current_user)):
+        async def get_candles(
+            symbol: str,
+            timeframe: str = "1h",
+            limit: int = 100,
+            user: str = Depends(get_current_user),
+        ):
             """Get historical candles for a specific symbol."""
             try:
-                # Use the registry to find the right feed
-                from data.market_registry import market_registry
-                feed = market_registry.get_feed_for_symbol(symbol)
-                if not feed:
-                    return {"error": f"No feed found for {symbol}"}
-                
-                df = await feed.get_candlesticks(symbol, timeframe, limit)
+                import yfinance as yf
+                import pandas as pd
+                import asyncio
+
+                # Map symbol to yfinance format
+                mapping = {
+                    "BTCUSD": "BTC-USD",
+                    "ETHUSD": "ETH-USD",
+                    "GOLD": "GC=F",
+                    "BTC-USD": "BTC-USD",
+                }
+                yf_symbol = mapping.get(symbol, symbol)
+                logger.info(f"Mapping {symbol} -> {yf_symbol}")
+
+                interval_map = {"1m": "1m", "5m": "5m", "1h": "1h", "1D": "1d"}
+                interval = interval_map.get(timeframe, "1h")
+                period = "5d" if interval == "1h" else "1d"
+
+                # Run in executor to avoid blocking
+                loop = asyncio.get_event_loop()
+                df = await loop.run_in_executor(
+                    None,
+                    lambda: yf.download(
+                        yf_symbol, period=period, interval=interval, progress=False
+                    ),
+                )
+
                 if df.empty:
+                    logger.warning(f"No data from yfinance for {yf_symbol}")
                     return []
-                
-                # Format for Lightweight Charts: { time: timestamp, open: val, ... }
+
+                # Handle MultiIndex columns properly
+                if isinstance(df.columns, pd.MultiIndex):
+                    df.columns = pd.Index([c[0].lower() for c in df.columns])
+
+                df = df.reset_index()
+                df.columns = [c.lower() for c in df.columns]
+
+                # Format output
                 candles = []
-                for _, row in df.iterrows():
-                    candles.append({
-                        "time": int(row['timestamp'].timestamp()),
-                        "open": float(row['open']),
-                        "high": float(row['high']),
-                        "low": float(row['low']),
-                        "close": float(row['close']),
-                        "volume": float(row.get('volume', 0))
-                    })
+                for _, row in df.tail(limit).iterrows():
+                    ts = row["datetime"] if "datetime" in row else row["date"]
+                    candles.append(
+                        {
+                            "time": int(ts.timestamp()),
+                            "open": float(row["open"]),
+                            "high": float(row["high"]),
+                            "low": float(row["low"]),
+                            "close": float(row["close"]),
+                            "volume": float(row.get("volume", 0)),
+                        }
+                    )
+
+                logger.info(f"Returning {len(candles)} candles for {symbol}")
                 return candles
             except Exception as e:
                 logger.error(f"Error fetching candles for {symbol}: {e}")
@@ -120,34 +183,49 @@ class WebDashboard:
         async def get_params(user: str = Depends(get_current_user)):
             """Get currently tuned symbol parameters."""
             from strategy.factory import load_symbol_params
+
             return load_symbol_params()
 
         @self.app.put("/api/params")
-        async def update_params(new_params: dict, user: str = Depends(get_current_user)):
+        async def update_params(
+            new_params: dict, user: str = Depends(get_current_user)
+        ):
             """Update tuned symbol parameters and save to disk."""
             import json
             import os
+
             try:
-                config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config")
+                config_dir = os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "config",
+                )
                 params_file = os.path.join(config_dir, "symbol_params.json")
-                
-                with open(params_file, 'w') as f:
+
+                with open(params_file, "w") as f:
                     json.dump(new_params, f, indent=4)
-                
+
                 # Notify the strategy if it's currently active in LiveTrader
                 if self.dashboard_data.trader and self.dashboard_data.trader.strategy:
                     self.dashboard_data.trader.strategy.symbol_params = new_params
                     logger.info("Live strategy parameters updated from dashboard")
-                
-                return {"status": "success", "message": "Parameters updated successfully"}
+
+                return {
+                    "status": "success",
+                    "message": "Parameters updated successfully",
+                }
             except Exception as e:
                 logger.error(f"Error saving parameters: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
 
         @self.app.post("/api/tune/{symbol}")
-        async def trigger_tuning(symbol: str, background_tasks: BackgroundTasks, user: str = Depends(get_current_user)):
+        async def trigger_tuning(
+            symbol: str,
+            background_tasks: BackgroundTasks,
+            user: str = Depends(get_current_user),
+        ):
             """Trigger automated strategy tuning for a symbol."""
             from RND.experiments.tune_strategy import tune_symbol
+
             background_tasks.add_task(tune_symbol, symbol)
             return {"status": "Tuning started in background", "symbol": symbol}
 
@@ -174,7 +252,10 @@ class WebDashboard:
         @self.app.get("/api/correlation")
         async def get_correlation(user: str = Depends(get_current_user)):
             """Get the current symbol correlation matrix."""
-            if self.dashboard_data.trader and self.dashboard_data.trader.correlation_engine:
+            if (
+                self.dashboard_data.trader
+                and self.dashboard_data.trader.correlation_engine
+            ):
                 return self.dashboard_data.trader.correlation_engine.get_matrix_dict()
             return {}
 
@@ -182,10 +263,16 @@ class WebDashboard:
         async def close_position(symbol: str, user: str = Depends(get_current_user)):
             """Manually close a position."""
             if self.dashboard_data.trader and self.dashboard_data.trader.order_manager:
-                positions = self.dashboard_data.trader.strategy.get_open_positions(symbol)
+                positions = self.dashboard_data.trader.strategy.get_open_positions(
+                    symbol
+                )
                 if positions:
-                    price = await self.dashboard_data.trader.broker.get_current_price(symbol)
-                    await self.dashboard_data.trader.order_manager.close_position(positions[0], price)
+                    price = await self.dashboard_data.trader.broker.get_current_price(
+                        symbol
+                    )
+                    await self.dashboard_data.trader.order_manager.close_position(
+                        positions[0], price
+                    )
                     logger.info(f"Position {symbol} CLOSED manually via dashboard")
                     await self.broadcast(self.dashboard_data.get_full_dashboard())
                     return {"status": "closed", "symbol": symbol}
@@ -203,9 +290,9 @@ class WebDashboard:
                     if p.strip().startswith("bearer."):
                         token = p.strip().replace("bearer.", "")
                         break
-            
+
             await websocket.accept(subprotocol=f"bearer.{token}" if token else None)
-            
+
             # Verify token
             try:
                 await get_current_user(token)
@@ -218,7 +305,7 @@ class WebDashboard:
                 # Send initial data immediately
                 initial_data = self.dashboard_data.get_full_dashboard()
                 await websocket.send_json(self._serialize_for_json(initial_data))
-                
+
                 while True:
                     # Connection stays open to receive broadcasts from other components
                     await websocket.receive_text()
@@ -1692,8 +1779,11 @@ class WebDashboard:
     async def run(self):
         """Run the web dashboard server."""
         import uvicorn
+
         logger.info(f"Starting web dashboard at http://{self.host}:{self.port}")
-        config = uvicorn.Config(self.app, host=self.host, port=self.port, log_level="info")
+        config = uvicorn.Config(
+            self.app, host=self.host, port=self.port, log_level="info"
+        )
         server = uvicorn.Server(config)
         await server.serve()
 
@@ -1720,7 +1810,7 @@ async def main():
         alert_manager=alert_manager,
         broker=broker,
         strategy=strategy,
-        circuit_breaker=circuit_breaker
+        circuit_breaker=circuit_breaker,
     )
 
     # Create and run web dashboard

@@ -62,7 +62,7 @@ class MarketRegistry:
         if (
             any(curr in upper_symbol for curr in forex_currencies)
             and len(upper_symbol) <= 7
-            and "BTC" not in upper_symbol # Prevent crypto-FX overlap
+            and "BTC" not in upper_symbol  # Prevent crypto-FX overlap
         ):
             if "mt5" in self.feeds:
                 return self.feeds.get("mt5")
@@ -75,9 +75,24 @@ class MarketRegistry:
                 return self.feeds.get("mt5")
             return self.feeds.get("yfinance")
 
-        # 5. Crypto (CoinGecko Priority)
-        crypto_assets = ["BTC", "ETH", "SOL", "XRP", "ADA", "DOGE", "BNB", "AVAX", "MATIC", "USDT", "USDC"]
+        # 5. Crypto via Yahoo Finance for live data (faster, real-time)
+        crypto_assets = ["BTC", "ETH"]
         if any(upper_symbol.startswith(asset) for asset in crypto_assets):
+            return self.feeds.get("yfinance")
+
+        # 6. Other Crypto (CoinGecko Priority)
+        other_crypto = [
+            "SOL",
+            "XRP",
+            "ADA",
+            "DOGE",
+            "BNB",
+            "AVAX",
+            "MATIC",
+            "USDT",
+            "USDC",
+        ]
+        if any(upper_symbol.startswith(asset) for asset in other_crypto):
             return self.feeds.get("crypto")
 
         # Final Fallback: Yahoo Finance is the most versatile free source

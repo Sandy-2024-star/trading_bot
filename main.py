@@ -27,6 +27,7 @@ from execution.paper_broker import PaperBroker
 from execution.mt5_broker import MT5Broker
 from monitoring.live_trader import LiveTrader
 from monitoring.web_dashboard import WebDashboard
+from monitoring.dashboard_data import DashboardData
 from config.config import config
 
 
@@ -611,21 +612,22 @@ async def demo_web():
     from database import init_db, Session
     from execution.repositories import OrderRepository, TradeRepository
     from monitoring.repositories.performance_repository import PerformanceRepository
+
     init_db()
     session = Session()
 
     # Initialize components
     feed = create_market_data_feed()
-    
+
     # Inject repositories for persistence
     broker = PaperBroker(
         initial_balance=10000.0,
         order_repository=OrderRepository(session),
-        trade_repository=TradeRepository(session)
+        trade_repository=TradeRepository(session),
     )
     # Add performance repo manually to broker for PnLTracker discovery
     broker.perf_repo = PerformanceRepository(session)
-    
+
     await broker.connect()
 
     try:
@@ -649,11 +651,11 @@ async def demo_web():
 
         # Create dashboard data first (needed for web_dashboard)
         dashboard_data = DashboardData(
-            pnl_tracker=None, # Will be set by LiveTrader
-            alert_manager=None, # Will be set by LiveTrader
+            pnl_tracker=None,  # Will be set by LiveTrader
+            alert_manager=None,  # Will be set by LiveTrader
             broker=broker,
             strategy=strategy,
-            circuit_breaker=circuit_breaker
+            circuit_breaker=circuit_breaker,
         )
 
         # Create web dashboard instance
@@ -673,9 +675,9 @@ async def demo_web():
             update_interval=30,
             enable_telegram=False,
             context_refresh_interval=1800,
-            web_dashboard=web_dashboard
+            web_dashboard=web_dashboard,
         )
-        
+
         # Link trader's actual monitoring components back to dashboard_data
         dashboard_data.pnl_tracker = trader.pnl_tracker
         dashboard_data.alert_manager = trader.alert_manager
